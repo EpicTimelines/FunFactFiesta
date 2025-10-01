@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Random History & Fun Events</title>
+  <style>
+    body {
+      font-family: "Comic Sans MS", cursive, sans-serif; /* COMIC SANS HYPE 🔥 */
+      text-align: center;
+      background: #111; /* default dark mode */
+      color: white;
+      padding-top: 50px;
+      transition: background 0.5s, color 0.5s;
+      overflow-x: hidden;
+    }
+    h1 {
+      font-size: 40px;
+    }
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
+      margin: 5px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #333;
+      color: white;
+      transition: transform 0.2s, background 0.3s, color 0.3s;
+    }
+    button:hover {
+      transform: scale(1.1);
+    }
+    #toggleModeButton {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      background: #444;
+    }
+    #event {
+      margin-top: 40px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      opacity: 0.7;
+      pointer-events: none;
+      animation: fall 3s linear forwards;
+    }
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(800px) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>📜 Random History & Fun Events</h1>
+
+  <h2>Choose a category:</h2>
+  <button onclick="setCategory('all')">All 🌍</button>
+  <button onclick="setCategory('science')">Science 🔬</button>
+  <button onclick="setCategory('math')">Math ➗</button>
+  <button onclick="setCategory('history')">History 🏰</button>
+  <button onclick="setCategory('sports')">Sports ⚽</button>
+
+  <br><br>
+  <button onclick="showEvent()">Click Me!</button>
+
+  <div id="event"></div>
+
+  <!-- Toggle Dark/Light Mode button top-right -->
+  <button id="toggleModeButton" onclick="toggleMode()">🌗 Mode</button>
+
+  <!-- Click sound -->
+  <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+
+  <script>
+    const events = {
+      science: [
+        "December 17, 1903 – Wright brothers flew the first airplane ✈️",
+        "November 4, 1957 – Sputnik 2 launched, Laika went to space 🐶🚀",
+        "July 20, 1969 – Humans walked on the Moon 🌕",
+        "Weird Fact: Scientists once sent a frog into space 🐸🛸",
+        "Funny Fact: A man pretended to be a time traveler to sell a theory ⏳😂",
+        "The inventor of the Pringles can is buried in one 🥫💀",
+        "Bananas are berries, but strawberries are not 🍌🍓",
+        "A single teaspoon of honey represents the life work of 12 bees 🐝🍯",
+        "There’s a species of jellyfish that is technically immortal 🪼♾️",
+        "NASA once tried to grow plants in space with potato chips as fertilizer 🥔🚀",
+        "Rats laugh when tickled 🐀😂"
+      ],
+      math: [
+        "March 14, 1879 – Albert Einstein born 🧠",
+        "January 23, 1832 – George Boole born 🔢",
+        "June 22, 1633 – Galileo forced to recant heliocentrism 🌞",
+        "Weird Fact: Math theorem proved with 200 trillion cases 🤯",
+        "Funny Fact: Mathematicians joked about dividing by zero in public 😅",
+        "Zero is the only number that cannot be represented in Roman numerals 0️⃣",
+        "The word 'hundred' comes from the old Norse 'hundrath', meaning 120 💯➡️120?",
+        "There’s a shape called a 'Klein bottle' that has no inside or outside 🏺🤯",
+        "A pizza cut into 8 slices has more slices than one cut into 6 🍕🧮",
+        "Google once used 1,000-digit primes to encrypt search data 🔒🧠",
+        "Fibonacci numbers appear in pinecones, sunflowers, and galaxies 🌌🌻"
+      ],
+      history: [
+        "September 1, 1939 – World War II began 🌍",
+        "July 4, 1776 – Declaration of Independence 🇺🇸",
+        "November 9, 1989 – Berlin Wall fell 🧱",
+        "Weird Fact: 18th century Europe wore fake moles as fashion 🦠👀",
+        "Funny Fact: Napoleon was attacked by bunnies during a hunt 🐇😂",
+        "Cleopatra lived closer to the moon landing than to the building of the pyramids 🌕🏺",
+        "In 1835, the New York Sun published a series of articles about life on the moon 📰👽",
+        "The shortest war in history lasted 38 minutes ⏱️⚔️",
+        "The Eiffel Tower was almost torn down in 1909 🗼💥",
+        "In Victorian England, people would photograph deceased relatives as if alive 📸💀",
+        "King Charles II of Spain had a huge jaw that prevented him from chewing properly 😬👑"
+      ],
+      sports: [
+        "June 30, 1998 – France won FIFA World Cup ⚽🏆",
+        "March 2, 1991 – Michael Jordan scored 69 points 🏀",
+        "August 8, 2008 – Beijing Olympics Opening Ceremony 🥇",
+        "Weird Fact: A soccer player once scored a goal with his chest 🤯⚽",
+        "Funny Fact: In 1904, marathon runners rode in cars and still won races 🚗🏃😂",
+        "Michael Jordan once retired from basketball to play baseball ⚾🏀",
+        "There’s a soccer club in Italy that had only one player for a whole match 🏃‍♂️⚽",
+        "Cricket balls used to be handmade and could weigh almost twice as much 🏏💪",
+        "The Olympic Games used to award medals for art 🎨🥇",
+        "Table tennis balls can travel over 60 mph during a pro match 🏓💨"
+      ]
+    };
+
+    // Confetti & backgrounds use same soft colors
+    const colors = ["#f5f5f5", "#e0f7fa", "#fff9c4", "#fce4ec", "#e8f5e9", "#f3e5f5"];
+    const lightBgColors = colors; // same as confetti for light mode
+
+    let currentCategory = 'all';
+    let darkMode = true;
+
+    function setCategory(category) {
+      currentCategory = category;
+      showEvent();
+    }
+
+    function toggleMode() {
+      darkMode = !darkMode;
+      if(darkMode){
+        document.body.style.backgroundColor = "#111";
+        document.body.style.color = "white";
+      } else {
+        const randomLight = lightBgColors[Math.floor(Math.random() * lightBgColors.length)];
+        document.body.style.backgroundColor = randomLight;
+        document.body.style.color = "black";
+      }
+      document.getElementById("event").style.color = darkMode ? "white" : "black";
+    }
+
+    function showEvent() {
+      document.getElementById("clickSound").play();
+
+      let selectedEvents = currentCategory === 'all' 
+        ? [].concat(...Object.values(events))
+        : events[currentCategory];
+      const randomIndex = Math.floor(Math.random() * selectedEvents.length);
+      document.getElementById("event").innerText = selectedEvents[randomIndex];
+
+      // Background
+      if(darkMode){
+        document.body.style.backgroundColor = "#111";
+      } else {
+        const randomLight = lightBgColors[Math.floor(Math.random() * lightBgColors.length)];
+        document.body.style.backgroundColor = randomLight;
+      }
+
+      // Text color
+      document.getElementById("event").style.color = darkMode ? "white" : "black";
+
+      // Confetti
+      spawnConfetti(50);
+    }
+
+    function spawnConfetti(amount) {
+      for (let i = 0; i < amount; i++) {
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * window.innerWidth + "px";
+        confetti.style.top = "-20px";
+        confetti.style.width = 5 + Math.random() * 10 + "px";
+        confetti.style.height = 5 + Math.random() * 10 + "px";
+        confetti.style.opacity = Math.random();
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+      }
+    }
+  </script>
+</body>
+</html>
